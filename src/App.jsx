@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { useEffect, useState } from 'react'
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import landscapePlaceholder from './assets/landscapePlaceholder.svg'
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const API_KEY = "YOUR API KEY HERE!!!";
+  
+  const [photos, setPhotos] = useState([])
+
+  useEffect(() => {
+    fetch(
+      `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?sol=1000&api_key=${API_KEY}`
+    )
+      .then((response) => response.json())
+      .then((json) => setPhotos(json.photos));
+  }, [])
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <img src="" alt="" />
+      <h1>Mars Photos</h1>
+      <div className="photos">
+        {photos.map((photo) => (
+          <div key={photo.id}>
+            <LazyLoadImage
+              src={photo.img_src}
+              alt={photo.id}
+              width={300}
+              height={300}
+              placeholderSrc={landscapePlaceholder}
+              effect='opacity'
+              threshold={10}
+              onLoad={() => console.log('image loaded')}
+              wrapperClassName='photo'
+            />
+          </div>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
 export default App
